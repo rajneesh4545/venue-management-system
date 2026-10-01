@@ -1,0 +1,42 @@
+.nav-title {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  color: var(--muted);
+  padding: 0 14px;
+  margin: 0 0 6px;
+}
+
+.sidebar-footer {
+  padding: 16px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #6c5ce7, #a66cff);
+  color: #fff;
+}
+.sidebar-footer p { margin: 0 0 4px; font-size: 13px; font-weight: 600; }
+.sidebar-footer small { opacity: 0.85; font-size: 11px; }
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 20px;
+  margin-bottom: 28px;
+  box-shadow: var(--shadow);
+}
+.greeting { margin: 0; font-weight: 600; font-size: 16px; }
+.topbar-sub { color: var(--muted); font-size: 13px; }
+
+.topbar-right { display: flex; align-items: center; gap: 12px; }
+.role-badge { font-size: 13px; padding: 6px 12px; }
+.topbar-right .btn { padding: 8px 16px; }
+
+@media (max-width: 900px) {
+  .nav-title, .sidebar-footer { display: none; }
+  .role-badge { display: none; }
+}

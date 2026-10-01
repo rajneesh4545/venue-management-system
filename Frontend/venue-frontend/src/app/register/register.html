@@ -1,0 +1,80 @@
+<div class="auth-page">
+
+  <div class="auth-brand">
+    <div class="brand-logo">🎟️ VenueVista</div>
+    <h1>Create your account in seconds.</h1>
+    <p>Join as a customer to book venues, or as an event manager to manage them.</p>
+    <ul class="auth-features">
+      <li>✅ Free to sign up</li>
+      <li>⚡ Instant booking confirmation</li>
+      <li>🔒 Your data stays safe</li>
+    </ul>
+  </div>
+
+  <div class="auth-form-side">
+    <div class="auth-card">
+      <h2>Create account ✨</h2>
+      <p class="sub">Choose your role and fill in your details</p>
+
+      @if (error()) {
+        <div class="alert alert-error">⚠️ {{ error() }}</div>
+      }
+
+      <form (ngSubmit)="register()">
+
+        <div class="form-group">
+          <label>I am a</label>
+          <div class="role-options">
+            <div class="role-option" [class.selected]="role === 'CUSTOMER'" (click)="role = 'CUSTOMER'">
+              <span class="emoji">🙋</span>
+              <strong>Customer</strong>
+              <small>Book venues</small>
+            </div>
+            <div class="role-option" [class.selected]="role === 'MANAGER'" (click)="role = 'MANAGER'">
+              <span class="emoji">🧑‍💼</span>
+              <strong>Event Manager</strong>
+              <small>Manage venues</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Full Name</label>
+          <input class="form-control" name="name" [(ngModel)]="name" placeholder="e.g. Ritesh Singh" />
+        </div>
+
+        <div class="form-group">
+          <label>Email</label>
+          <input class="form-control" type="email" name="email" [(ngModel)]="email" placeholder="you@example.com" />
+        </div>
+
+        <div class="form-group">
+          <label>Password</label>
+          <div class="password-field">
+            <input class="form-control" [type]="showPassword ? 'text' : 'password'" name="password"
+                   [(ngModel)]="password" placeholder="At least 6 characters" />
+            <button type="button" class="toggle-eye" (click)="showPassword = !showPassword">
+              {{ showPassword ? '🙈' : '👁️' }}
+            </button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Confirm Password</label>
+          <input class="form-control" [type]="showPassword ? 'text' : 'password'" name="confirmPassword"
+                 [(ngModel)]="confirmPassword" placeholder="Re-enter password" />
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block"
+                [disabled]="!name || !email || !password || !confirmPassword">
+          Create Account
+        </button>
+      </form>
+
+      <p class="auth-switch">
+        Already have an account? <a routerLink="/login">Login</a>
+      </p>
+    </div>
+  </div>
+
+</div>

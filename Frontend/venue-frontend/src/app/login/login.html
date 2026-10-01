@@ -1,0 +1,60 @@
+<div class="auth-page">
+
+  <div class="auth-brand">
+    <div class="brand-logo">🎟️ VenueVista</div>
+    <h1>Book the perfect venue for every event.</h1>
+    <p>One platform for customers to book venues and for event managers to run them.</p>
+    <ul class="auth-features">
+      <li>🏛️ Browse venues across cities</li>
+      <li>💳 Secure, instant payments</li>
+      <li>📊 Live dashboard for managers</li>
+    </ul>
+  </div>
+
+  <div class="auth-form-side">
+    <div class="auth-card">
+      <h2>Welcome back 👋</h2>
+      <p class="sub">Login to continue to VenueVista</p>
+
+      @if (error()) {
+        <div class="alert alert-error">⚠️ {{ error() }}</div>
+      }
+
+      <form (ngSubmit)="login()">
+        <div class="form-group">
+          <label>Email</label>
+          <input class="form-control" type="email" name="email"
+                 [(ngModel)]="email" placeholder="you@example.com" required />
+        </div>
+
+        <div class="form-group">
+          <label>Password</label>
+          <div class="password-field">
+            <input class="form-control" [type]="showPassword ? 'text' : 'password'" name="password"
+                   [(ngModel)]="password" placeholder="Enter your password" required />
+            <button type="button" class="toggle-eye" (click)="showPassword = !showPassword">
+              {{ showPassword ? '🙈' : '👁️' }}
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block" [disabled]="!email || !password">
+          Login
+        </button>
+      </form>
+
+      <p class="auth-switch">
+        New here? <a routerLink="/register">Create an account</a>
+      </p>
+
+      <div class="demo-box">
+        <p>⚡ Quick demo login</p>
+        <div class="demo-buttons">
+          <button type="button" class="btn btn-outline" (click)="fillDemo('CUSTOMER')">Customer</button>
+          <button type="button" class="btn btn-outline" (click)="fillDemo('MANAGER')">Event Manager</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

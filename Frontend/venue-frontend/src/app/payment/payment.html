@@ -1,0 +1,143 @@
+@if (!pending()) {
+
+  <div class="empty-state">
+    <div class="icon">💳</div>
+    <p>No booking selected for payment.</p>
+    <a class="btn btn-primary" routerLink="/venues">Browse Venues</a>
+  </div>
+
+} @else if (stage() === 'success') {
+
+  <div class="card receipt-card">
+    <div class="success-icon">✓</div>
+    <h1>Payment Successful!</h1>
+    <p class="receipt-sub">Your booking is confirmed. You can find it under My Bookings.</p>
+
+    <div class="receipt-rows">
+      <div class="receipt-row"><span>Transaction ID</span><strong>{{ receipt()?.transactionId }}</strong></div>
+      <div class="receipt-row"><span>Booking ID</span><strong>#{{ receipt()?.bookingId }}</strong></div>
+      <div class="receipt-row"><span>Customer</span><strong>{{ pending()!.booking.customerName }}</strong></div>
+      <div class="receipt-row"><span>Venue</span><strong>{{ pending()!.venueName }}, {{ pending()!.venueLocation }}</strong></div>
+      <div class="receipt-row"><span>Dates</span><strong>{{ pending()!.booking.startDate }} → {{ pending()!.booking.endDate }}</strong></div>
+      <div class="receipt-row"><span>Payment Method</span><strong>{{ receipt()?.method }}</strong></div>
+      <div class="receipt-row"><span>Paid On</span><strong>{{ receipt()?.paidAt | date: 'd MMM y, h:mm a' }}</strong></div>
+      <div class="receipt-row total"><span>Amount Paid</span><strong>₹{{ receipt()?.amount | number }}</strong></div>
+    </div>
+
+    <div class="receipt-actions">
+      <button type="button" class="btn btn-outline" (click)="print()">🖨️ Print Receipt</button>
+      <a class="btn btn-primary" routerLink="/bookings">View My Bookings →</a>
+    </div>
+  </div>
+
+} @else {
+
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Checkout</h1>
+      <p class="page-subtitle">Complete your payment to confirm the booking</p>
+    </div>
+  </div>
+
+  @if (error()) {
+    <div class="alert alert-error">⚠️ {{ error() }}</div>
+  }
+
+  <div class="checkout-layout">
+
+    <!-- Payment form -->
+    <div class="card">
+      <h2 class="card-title">Choose payment method</h2>
+
+      <div class="method-tabs">
+        <button type="button" class="method-tab" [class.active]="method() === 'UPI'" (click)="selectMethod('UPI')">
+          📱<span>UPI</span>
+        </button>
+        <button type="button" class="method-tab" [class.active]="method() === 'CARD'" (click)="selectMethod('CARD')">
+          💳<span>Card</span>
+        </button>
+        <button type="button" class="method-tab" [class.active]="method() === 'NETBANKING'" (click)="selectMethod('NETBANKING')">
+          🏦<span>Net Banking</span>
+        </button>
+      </div>
+
+      @switch (method()) {
+        @case ('UPI') {
+          <div class="form-group">
+            <label>UPI ID</label>
+            <input class="form-control" [(ngModel)]="upiId" placeholder="yourname@okaxis" />
+          </div>
+        }
+        @case ('CARD') {
+          <div class="form-group">
+            <label>Card Number</label>
+            <input class="form-control" [(ngModel)]="cardNumber" maxlength="19" placeholder="1234 5678 9012 3456" />
+          </div>
+          <div class="form-group">
+            <label>Name on Card</label>
+            <input class="form-control" [(ngModel)]="cardName" placeholder="RITESH SINGH" />
+          </div>
+          <div class="date-row">
+            <div class="form-group">
+              <label>Expiry</label>
+              <input class="form-control" [(ngModel)]="expiry" maxlength="5" placeholder="MM/YY" />
+            </div>
+            <div class="form-group">
+              <label>CVV</label>
+              <input class="form-control" type="password" [(ngModel)]="cvv" maxlength="3" placeholder="•••" />
+            </div>
+          </div>
+        }
+        @case ('NETBANKING') {
+          <div class="form-group">
+            <label>Select your bank</label>
+            <select class="form-control" [(ngModel)]="bank">
+              <option value="">Choose a bank</option>
+              @for (b of banks; track b) {
+                <option [value]="b">{{ b }}</option>
+              }
+            </select>
+          </div>
+        }
+      }
+
+      <button type="button" class="btn btn-primary btn-block pay-btn" (click)="pay()">
+        🔒 Pay ₹{{ total() | number }}
+      </button>
+      <p class="secure-note">🔒 Demo payment. No real money is charged.</p>
+    </div>
+
+    <!-- Order summary -->
+    <div class="card summary-card">
+      <h2 class="card-title">Order Summary</h2>
+
+      <div class="summary-venue">
+        <div class="venue-initial small">{{ pending()!.venueName.charAt(0) }}</div>
+        <div>
+          <strong>{{ pending()!.venueName }}</strong>
+          <small>📍 {{ pending()!.venueLocation }}</small>
+        </div>
+      </div>
+
+      <div class="summary-row"><span>Customer</span><span>{{ pending()!.booking.customerName }}</span></div>
+      <div class="summary-row"><span>Dates</span><span>{{ pending()!.booking.startDate }} → {{ pending()!.booking.endDate }}</span></div>
+      <div class="summary-row">
+        <span>₹{{ pending()!.rate | number }} × {{ pending()!.days }} {{ pending()!.days === 1 ? 'day' : 'days' }}</span>
+        <span>₹{{ pending()!.amount | number }}</span>
+      </div>
+      <div class="summary-row"><span>GST (18%)</span><span>₹{{ gst() | number }}</span></div>
+      <div class="summary-row summary-total"><span>Total</span><span>₹{{ total() | number }}</span></div>
+    </div>
+
+  </div>
+
+  @if (stage() === 'processing') {
+    <div class="processing-overlay">
+      <div class="processing-box">
+        <div class="loader"></div>
+        <h3>Processing payment…</h3>
+        <p>Please don't close or refresh this page</p>
+      </div>
+    </div>
+  }
+}

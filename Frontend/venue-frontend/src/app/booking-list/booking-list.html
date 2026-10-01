@@ -1,0 +1,155 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">{{ auth.isManager() ? 'All Bookings' : 'My Bookings' }}</h1>
+    <p class="page-subtitle">
+      {{ auth.isManager() ? 'Every booking made by customers on the platform' : 'Book a venue and track your bookings' }}
+    </p>
+  </div>
+  <span class="badge count-badge">🎫 {{ visibleBookings().length }} bookings</span>
+</div>
+
+@if (error()) {
+  <div class="alert alert-error">
+    <span>⚠️ {{ error() }}</span>
+    <button type="button" class="btn btn-outline" (click)="error.set('')">✖</button>
+  </div>
+}
+
+<div class="booking-layout" [class.full]="auth.isManager()">
+
+  <!-- Customer: new booking form -->
+  @if (!auth.isManager()) {
+    <div class="card form-card">
+      <h2 class="card-title">➕ New Booking</h2>
+
+      <div class="form-group">
+        <label>Your Name</label>
+        <input class="form-control readonly" [value]="customerName" readonly />
+      </div>
+
+      <div class="form-group">
+        <label>Your Email</label>
+        <input class="form-control readonly" [value]="customerEmail" readonly />
+      </div>
+
+      <div class="form-group">
+        <label>Venue</label>
+        <select class="form-control" [(ngModel)]="venueId">
+          <option [ngValue]="null">Select a venue</option>
+          @for (v of venues(); track v.id) {
+            <option [ngValue]="v.id">{{ v.name }} ({{ v.location }})</option>
+          }
+        </select>
+      </div>
+
+      <div class="date-row">
+        <div class="form-group">
+          <label>Start Date</label>
+          <input class="form-control" type="date" [min]="today" [(ngModel)]="startDate" />
+        </div>
+        <div class="form-group">
+          <label>End Date</label>
+          <input class="form-control" type="date" [min]="startDate || today" [(ngModel)]="endDate" />
+        </div>
+      </div>
+
+      @if (selectedVenue() && days() > 0) {
+        <div class="price-preview">
+          <div class="summary-row">
+            <span>₹{{ rate() | number }} × {{ days() }} {{ days() === 1 ? 'day' : 'days' }}</span>
+            <span>₹{{ subtotal() | number }}</span>
+          </div>
+          <small>+ 18% GST added at checkout</small>
+        </div>
+      }
+
+      <button type="button" class="btn btn-primary btn-block" (click)="proceedToPayment()"
+              [disabled]="!venueId || !startDate || !endDate">
+        Proceed to Payment →
+      </button>
+    </div>
+  }
+
+  <!-- Bookings list -->
+  <div>
+    @if (auth.isManager()) {
+      <div class="search-bar">
+        <span>🔍</span>
+        <input [ngModel]="search()" (ngModelChange)="search.set($event)"
+               placeholder="Search by customer, email or venue…" />
+      </div>
+    } @else {
+      <h2 class="card-title">📋 Your Bookings</h2>
+    }
+
+    @if (loading()) {
+      <div class="loader"></div>
+    } @else if (visibleBookings().length === 0) {
+      <div class="empty-state">
+        <div class="icon">🎫</div>
+        @if (auth.isManager()) {
+          <p>No bookings found.</p>
+        } @else {
+          <p>You haven't booked anything yet.</p>
+          <a class="btn btn-primary" routerLink="/venues">Browse Venues</a>
+        }
+      </div>
+    }
+
+    <div class="booking-list">
+      @for (b of visibleBookings(); track b.id) {
+        <div class="card booking-card">
+
+          <div class="booking-top">
+            <div class="customer">
+              <div class="avatar">{{ b.customerName.charAt(0) }}</div>
+              <div>
+                <strong>{{ b.customerName }}</strong>
+                <small>{{ b.customerEmail }}</small>
+              </div>
+            </div>
+            @if (paymentFor(b)) {
+              <span class="badge badge-success">✓ PAID</span>
+            } @else {
+              <span class="badge badge-warning">{{ b.status || 'PENDING' }}</span>
+            }
+          </div>
+
+          <div class="booking-details">
+            <div>
+              <small>Venue</small>
+              <span>🏛️ {{ b.venue.name || 'N/A' }}</span>
+            </div>
+            <div>
+              <small>Dates</small>
+              <span>📅 {{ b.startDate }} → {{ b.endDate }}</span>
+            </div>
+            <div>
+              <small>Booking ID</small>
+              <span>#{{ b.id }}</span>
+            </div>
+          </div>
+
+          @if (paymentFor(b); as pay) {
+            <div class="payment-strip paid">
+              <span>💳 ₹{{ pay.amount | number }} paid via {{ pay.method }}</span>
+              <small>{{ pay.transactionId }}</small>
+            </div>
+          } @else {
+            <div class="payment-strip unpaid">
+              <span>⏳ No payment recorded</span>
+            </div>
+          }
+
+          <div class="booking-actions">
+            <button type="button" class="btn btn-danger" (click)="deleteBooking(b.id!)">
+              {{ auth.isManager() ? '🗑️ Delete' : '✖ Cancel Booking' }}
+            </button>
+          </div>
+
+        </div>
+      }
+    </div>
+  </div>
+
+</div>

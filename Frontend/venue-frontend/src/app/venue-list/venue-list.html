@@ -1,0 +1,94 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">{{ auth.isManager() ? 'Manage Venues' : 'Browse Venues' }}</h1>
+    <p class="page-subtitle">
+      {{ auth.isManager() ? 'Add and manage the venues on your platform' : 'Pick the perfect venue for your event' }}
+    </p>
+  </div>
+
+  @if (auth.isManager()) {
+    <button type="button" class="btn btn-primary" (click)="showForm.set(!showForm())">
+      {{ showForm() ? '✖ Close' : '➕ Add Venue' }}
+    </button>
+  } @else {
+    <span class="badge count-badge">🏛️ {{ venues().length }} venues</span>
+  }
+</div>
+
+@if (error()) {
+  <div class="alert alert-error">⚠️ {{ error() }}</div>
+}
+@if (success()) {
+  <div class="alert alert-success">✅ {{ success() }}</div>
+}
+
+<!-- Manager: Add venue form -->
+@if (auth.isManager() && showForm()) {
+  <div class="card add-venue-card">
+    <h2 class="card-title">➕ Add a New Venue</h2>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Venue Name</label>
+        <input class="form-control" [(ngModel)]="newName" placeholder="e.g. Grand Palace Hall" />
+      </div>
+      <div class="form-group">
+        <label>Location</label>
+        <input class="form-control" [(ngModel)]="newLocation" placeholder="e.g. Ghaziabad" />
+      </div>
+      <div class="form-group">
+        <label>Capacity</label>
+        <input class="form-control" type="number" min="1" [(ngModel)]="newCapacity" placeholder="e.g. 200" />
+      </div>
+    </div>
+    <button type="button" class="btn btn-primary" (click)="addVenue()" [disabled]="saving()">
+      {{ saving() ? 'Saving…' : 'Save Venue' }}
+    </button>
+  </div>
+}
+
+<!-- Search -->
+<div class="search-bar">
+  <span>🔍</span>
+  <input [ngModel]="search()" (ngModelChange)="search.set($event)"
+         placeholder="Search by venue name or city…" />
+</div>
+
+@if (loading()) {
+  <div class="loader"></div>
+} @else if (filteredVenues().length === 0 && !error()) {
+  <div class="empty-state">
+    <div class="icon">🏛️</div>
+    <p>{{ search() ? 'No venues match your search.' : 'No venues found yet.' }}</p>
+  </div>
+}
+
+<div class="grid">
+  @for (v of filteredVenues(); track v.id) {
+    <div class="card hover venue-card">
+
+      <div class="venue-banner">
+        <span class="venue-initial">{{ v.name.charAt(0) }}</span>
+        <span class="venue-id">#{{ v.id }}</span>
+      </div>
+
+      <div class="venue-body">
+        <h3>{{ v.name }}</h3>
+        <p class="venue-meta">📍 {{ v.location }} · 👥 {{ v.capacity ?? 'N/A' }} guests</p>
+
+        <div class="venue-footer">
+          <div class="capacity">
+            <small>Price per day</small>
+            <strong class="price-text">₹{{ dailyRate(v) | number }}</strong>
+          </div>
+
+          @if (auth.isManager()) {
+            <a class="btn btn-outline" routerLink="/bookings">View Bookings</a>
+          } @else {
+            <a class="btn btn-primary" routerLink="/bookings" [queryParams]="{ venueId: v.id }">Book Now →</a>
+          }
+        </div>
+      </div>
+
+    </div>
+  }
+</div>

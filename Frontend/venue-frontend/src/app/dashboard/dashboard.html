@@ -1,0 +1,100 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Dashboard</h1>
+    <p class="page-subtitle">Overview of your venues, bookings and revenue</p>
+  </div>
+  <a class="btn btn-primary" routerLink="/venues">➕ Add Venue</a>
+</div>
+
+@if (error()) {
+  <div class="alert alert-error">⚠️ {{ error() }}</div>
+}
+
+@if (loading()) {
+  <div class="loader"></div>
+} @else {
+
+  <div class="stats">
+    <div class="card stat-card">
+      <div class="stat-icon purple">🏛️</div>
+      <div>
+        <p class="stat-label">Total Venues</p>
+        <p class="stat-value">{{ venues().length }}</p>
+      </div>
+    </div>
+
+    <div class="card stat-card">
+      <div class="stat-icon pink">🎫</div>
+      <div>
+        <p class="stat-label">Total Bookings</p>
+        <p class="stat-value">{{ bookings().length }}</p>
+      </div>
+    </div>
+
+    <div class="card stat-card">
+      <div class="stat-icon orange">👥</div>
+      <div>
+        <p class="stat-label">Total Capacity</p>
+        <p class="stat-value">{{ totalCapacity() | number }}</p>
+      </div>
+    </div>
+
+    <div class="card stat-card">
+      <div class="stat-icon green">💰</div>
+      <div>
+        <p class="stat-label">Revenue ({{ paidCount() }} paid)</p>
+        <p class="stat-value">₹{{ revenue() | number }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="dash-grid">
+
+    <div class="card">
+      <div class="section-head">
+        <h2>Recent Bookings</h2>
+        <a routerLink="/bookings">View all →</a>
+      </div>
+
+      @if (recentBookings().length === 0) {
+        <p class="muted-text">No bookings yet.</p>
+      }
+
+      @for (b of recentBookings(); track b.id) {
+        <div class="recent-item">
+          <div class="avatar">{{ b.customerName.charAt(0) }}</div>
+          <div class="recent-info">
+            <strong>{{ b.customerName }}</strong>
+            <small>🏛️ {{ b.venue.name }} · 📅 {{ b.startDate }}</small>
+          </div>
+          <span class="badge" [class.badge-success]="isPaid(b)" [class.badge-warning]="!isPaid(b)">
+            {{ isPaid(b) ? 'PAID' : 'UNPAID' }}
+          </span>
+        </div>
+      }
+    </div>
+
+    <div class="card">
+      <div class="section-head">
+        <h2>Popular Venues</h2>
+      </div>
+
+      @if (topVenues().length === 0) {
+        <p class="muted-text">Bookings will appear here.</p>
+      }
+
+      @for (v of topVenues(); track v.name) {
+        <div class="bar-row">
+          <div class="bar-label">
+            <span>{{ v.name }}</span>
+            <strong>{{ v.count }} {{ v.count === 1 ? 'booking' : 'bookings' }}</strong>
+          </div>
+          <div class="bar-track">
+            <div class="bar-fill" [style.width.%]="v.percent"></div>
+          </div>
+        </div>
+      }
+    </div>
+
+  </div>
+}
